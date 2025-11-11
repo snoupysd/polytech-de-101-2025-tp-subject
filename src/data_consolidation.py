@@ -37,6 +37,13 @@ def consolidate_station_data():
     # NANTES
     with open(f"data/raw_data/{today_date}/nantes_realtime_bicycle_data.json") as fd:
         data = json.load(fd)
+    data_ville = {}
+    with open(f"data/raw_data/{today_date}/communes_realtime_bicycle_data.json") as fd_ville:
+        data_ville = json.load(fd_ville)
+
+    raw_data_df = pd.json_normalize(data)
+    raw_data_ville_df = pd.json_normalize(data_ville)
+    raw_data_df["nb_inhabitants"] = None
 
     raw_data_df = pd.json_normalize(data["results"])
     nantes_data = raw_data_df[[
@@ -67,7 +74,12 @@ def consolidate_station_data():
         "last_update":   "CREATED_DATE"
     }, inplace=True)
     nantes_data["ID"] = nantes_data["ID"].astype(str) # comme les ID sont des varchar on changent le types en amont
-    nantes_data["CITY_CODE"] = "70000" #code special pour nantes qui n'est pas un code de paris
+
+    # on prend le city code du dataframe precedent, on aurait aussi pu
+    # le prendre depuis la table mais j'y ai pensé aprés
+    city_code = raw_data_ville_df.loc[raw_data_ville_df["nom"] == "Nantes", "code"].iloc[0]
+    nantes_data["CITY_CODE"] = city_code
+
     nantes_data["CODE"] = nantes_data["ID"] # je n'ai pas trouvé d'autres idée, ici le code
     nantes_data.drop_duplicates(inplace=True)
 

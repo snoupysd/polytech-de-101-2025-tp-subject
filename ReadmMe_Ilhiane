@@ -1,3 +1,36 @@
 Changements apportés au code
 
+pas de json pour toulouse
+
 Capacitty -> Capacity (correction dans les tables)
+
+j'ai changé le nom de l'attribut "code" de dim_station en city_id pour que ca soit plus clair
+le code de la station est deja dans "ID", donc la commande a entré pour le tp est differente
+(ds.code devient ds.city_id)
+
+il n'y a pas d'information d'adresse dans le json de paris, on a donc beaucoup de null dans la colonne
+address de la table consolidate_station ( et donc aussi dim_station)
+
+
+pour faire marcher les commandes:
+
+utilisez  duckdb data/duckdb/mobility_analysis.duckdb
+entrez les commandes dans la console:
+
+-- Nb de vélos disponibles en moyenne dans chaque station
+SELECT ds.name, ds.city_id, ds.address, tmp.avg_dock_available
+FROM DIM_STATION ds JOIN (
+    SELECT station_id, AVG(BICYCLE_AVAILABLE) AS avg_dock_available
+    FROM FACT_STATION_STATEMENT
+    GROUP BY station_id
+) AS tmp ON ds.id = tmp.station_id;
+
+-- Nb d'emplacements disponibles de vélos dans une ville
+SELECT dm.NAME, tmp.SUM_BICYCLE_DOCKS_AVAILABLE
+FROM DIM_CITY dm INNER JOIN (
+    SELECT CITY_ID, SUM(BICYCLE_DOCKS_AVAILABLE) AS SUM_BICYCLE_DOCKS_AVAILABLE
+    FROM FACT_STATION_STATEMENT
+    WHERE CREATED_DATE = (SELECT MAX(CREATED_DATE) FROM CONSOLIDATE_STATION)
+    GROUP BY CITY_ID
+) tmp ON dm.ID = tmp.CITY_ID
+WHERE lower(dm.NAME) in ('paris', 'nantes', 'vincennes', 'toulouse');
