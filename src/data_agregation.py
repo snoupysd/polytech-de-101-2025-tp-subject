@@ -63,7 +63,7 @@ def agregate_fact_station_statement():
         FROM CONSOLIDATE_STATION_STATEMENT CSS
         LEFT JOIN  DIM_STATION DS 
             ON CSS.STATION_ID = DS.ID
-        JOIN  DIM_CITY DC
+        LEFT JOIN  DIM_CITY DC
             ON DC.ID = DS.CITY_ID
         WHERE CSS.CREATED_DATE = (SELECT MAX_CREATED_DATE FROM latest);
     """

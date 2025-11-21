@@ -13,7 +13,7 @@ def get_paris_realtime_bicycle_data():
 
 # recuperer les infos de nantes et des communes en general
 def get_nantes_paris_realtime_bicycle_data():
-    url = "https://data.nantesmetropole.fr/api/explore/v2.1/catalog/datasets/244400404_stations-velos-libre-service-nantes-metropole-disponibilites/records?l"
+    url = "https://data.nantesmetropole.fr/api/explore/v2.1/catalog/datasets/244400404_stations-velos-libre-service-nantes-metropole-disponibilites/records?limit=100"
 
     response = requests.request("GET", url)
 
